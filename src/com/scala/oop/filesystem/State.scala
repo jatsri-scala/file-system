@@ -5,7 +5,7 @@ import com.scala.oop.file.Directory
 class State(val root: Directory, val wd: Directory, val output: String) {
   def show: Unit = {
     println(output)
-    println(State.SHELL_TOKEN)
+    print(State.SHELL_TOKEN)
   }
 
   def setMessage(message: String): State =
