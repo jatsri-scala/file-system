@@ -2,6 +2,8 @@ package com.scala.oop.commands
 import com.scala.oop.file.{DirEntry, Directory}
 import com.scala.oop.filesystem.State
 
+import scala.annotation.tailrec
+
 class Cd(dir: String) extends Command {
   override def apply(state: State): State = {
     /*
@@ -43,10 +45,63 @@ class Cd(dir: String) extends Command {
       }
     }
 
+    /*
+      a/b => ["a", "b"]
+        path.isEmpty ?
+          CRT(["b"], result = List :+ "a" = ["a"])
+            path.isEmpty ?
+              CRT([], result = ["a"] :+ "b" = ["a", "b"])
+                path.isEmpty ? ["a", "b"]
+
+       /a/.. => ["a", ".."]
+        path.isEmpty ?
+          CRT([".."], [] :+ "a" = ["a"])
+            path.isEmpty ?
+              CRT([], []) = []
+
+        /a/b/.. => ["a", "b", ".."]
+          path.isEmpty ?
+            CRT(["b", ".."], ["a"])
+              path.isEmpty ?
+                CRT([".."], ["a", "b"])
+                  Path.isEmpty ?
+                    CRT([], ["a"])
+
+        /a/b/c/.. => ["a", "b", "c", ".."]
+          path.isEmpty ?
+            CRT(["b", "c", ".."], ["a"])
+              path.isEmpty ?
+                CRT(["c", ".."], ["a", "b"])
+                  path.isEmpty ?
+                    CRT([".."], ["a", "b", "c"])
+                      path.isEmpty ?
+                        CRT([], ["a", "b"])
+    * */
+
+    @tailrec
+    def collapseRelativeTokens(path: List[String], result: List[String]): List[String] = {
+      if (path.isEmpty) result
+      else if (".".equals(path.head)) collapseRelativeTokens(path.tail, result)
+      else if ("..".equals(path.head)) {
+        if (result.isEmpty) null
+        else collapseRelativeTokens(path.tail, result.init)
+      } else collapseRelativeTokens(path.tail, result :+ path.head)
+    }
+
     // 1. Tokens
     val tokens: List[String] = path.substring(1).split(Directory.SEPERATOR).toList
 
+    // 1.5 Eliminate or collapse relative tokens
+    /*
+      /a => ["a", "."] => ["a"]
+      /a/b/./. => ["a", "b", ".", "."] => ["a", "b"]
+
+      /a/../ => ["a", ".."] => []
+      /a/b/.. => ["a", "b", ".."] => ["a"]
+    * */
+    val newTokens = collapseRelativeTokens(tokens, List())
     // 2. navigate to the correct entry
-    findEntryHelper(directory, tokens)
+    if (newTokens == null) null
+    else findEntryHelper(directory, newTokens)
   }
 }
