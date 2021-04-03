@@ -36,7 +36,7 @@ object Command {
       if(tokens.length < 2) incompleteCommand(MKDIR)
       else new Touch(tokens(1))
     } else if (CD.equals(tokens(0))) {
-      if (tokens.length < 2) incompleteCommand(MKDIR)
+      if (tokens.length < 2) incompleteCommand(CD)
       else new Cd(tokens(1))
     } else if (RM.equals(tokens(0))) {
       if (tokens.length < 2) incompleteCommand(RM)
