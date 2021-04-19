@@ -13,6 +13,14 @@ class File(override val parentPath: String, override val name: String, contents:
   def isFile: Boolean = true
 
   def getType: String = "File"
+
+  def setContent(newContents: String): File = {
+    new File(parentPath, name, newContents)
+  }
+
+  def appendContent(newContents: String): File = {
+    setContent(contents + "\n" + newContents)
+  }
 }
 
 object File {
