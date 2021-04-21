@@ -2,9 +2,7 @@ package com.scala.oop.commands
 
 import com.scala.oop.filesystem.State
 
-trait Command {
-  def apply(state: State): State
-}
+trait Command extends (State => State){}
 
 object Command {
   val MKDIR = "mkdir"
